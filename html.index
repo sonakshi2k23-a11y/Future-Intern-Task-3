@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Zomato Clone - Discover Restaurants Near You</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #cb202d;
+            --secondary: #333;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); }
+
+        /* Header Styles */
+        header { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .navbar { display:flex; justify-content:space-between; align-items:center; padding:1rem 5%; max-width:1400px; margin:0 auto; }
+        .logo { font-size:1.8rem; font-weight:700; color:var(--primary); text-decoration:none; }
+        .nav-links { display:flex; gap:2rem; }
+        .nav-links a { text-decoration:none; color:var(--dark); font-weight:500; transition:color .3s; }
+        .nav-links a:hover { color:var(--primary); }
+
+        .search-bar { display:flex; align-items:center; background-color:var(--light-gray); border-radius:5px; padding:0.5rem 1rem; margin:1rem 5%; max-width:1400px; margin-left:auto; margin-right:auto; }
+        .search-bar input { border:none; background:transparent; padding:0.5rem; width:100%; outline:none; font-size:1rem; }
+        .search-bar button { background:transparent; border:none; cursor:pointer; color:var(--gray); font-size:1.05rem; }
+
+        /* Hero */
+        .hero { position:relative; height:400px; margin-bottom:2rem; }
+        .hero img { width:100%; height:100%; object-fit:cover; }
+        .hero-content { position:absolute; bottom:0; left:0; right:0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding:2rem 5%; color:white; }
+        .hero-content h1 { font-size:2.5rem; margin-bottom:1rem; }
+        .hero-content p { font-size:1.2rem; max-width:600px; }
+
+        /* Filters */
+        .filters { display:flex; gap:1rem; padding:0.5rem 5%; max-width:1400px; margin:0 auto 2rem; overflow-x:auto; }
+        .filter-btn { background-color:white; border:1px solid var(--light-gray); border-radius:50px; padding:0.5rem 1.5rem; cursor:pointer; font-weight:500; white-space:nowrap; transition:all .3s; }
+        .filter-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .filter-btn.active { background-color:var(--primary); color:white; border-color:var(--primary); }
+
+        /* Restaurants */
+        .restaurants { max-width:1400px; margin:0 auto; padding:0 5%; }
+        .section-title { font-size:1.8rem; margin-bottom:1.5rem; position:relative; padding-left:1rem; }
+        .section-title::before { content:''; position:absolute; left:0; top:0; bottom:0; width:5px; background-color:var(--primary); border-radius:5px; }
+
+        .restaurant-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:2rem; margin-bottom:3rem; }
+        .restaurant-card { background:white; border-radius:10px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,0.1); transition:transform .3s, box-shadow .3s; cursor:pointer; }
+        .restaurant-card:hover { transform:translateY(-5px); box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+        .card-image { height:200px; position:relative; overflow:hidden; }
+        .card-image img { width:100%; height:100%; object-fit:cover; transition:transform .35s; display:block; }
+        .restaurant-card:hover .card-image img { transform:scale(1.05); }
+
+        .rating { position:absolute; top:1rem; left:1rem; background:rgba(255,255,255,0.9); padding:0.3rem .8rem; border-radius:50px; font-weight:600; font-size:0.9rem; color:var(--success); display:flex; align-items:center; gap:0.3rem; }
+        .card-content { padding:1.5rem; }
+        .card-content h3 { margin-bottom:0.5rem; font-size:1.2rem; }
+        .cuisine { color:var(--gray); font-size:0.9rem; margin-bottom:0.8rem; }
+        .location { display:flex; align-items:center; gap:0.5rem; color:var(--gray); font-size:0.9rem; margin-top:0.5rem; }
+        .price { margin-top:0.8rem; font-weight:500; color:var(--success); }
+        .price i { color:var(--gray); }
+
+        /* Footer */
+        footer { background-color:var(--dark); color:white; padding:3rem 5%; margin-top:3rem; }
+        .footer-content { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:2rem; }
+        .footer-col h3 { font-size:1.2rem; margin-bottom:1rem; color:var(--primary); }
+        .footer-col ul { list-style:none; }
+        .footer-col ul li { margin-bottom:0.5rem; }
+        .footer-col a { color:var(--light-gray); text-decoration:none; transition:color .3s; }
+        .footer-col a:hover { color:white; }
+        .social-links { display:flex; gap:1rem; margin-top:1rem; }
+        .copyright { text-align:center; margin-top:2rem; padding-top:1rem; border-top:1px solid var(--gray); color:var(--gray); font-size:0.9rem; }
+
+        /* Responsive */
+        @media (max-width:768px) {
+            .navbar { flex-direction:column; gap:1rem; padding:1rem; }
+            .nav-links { gap:1rem; }
+            .hero { height:300px; }
+            .hero-content h1 { font-size:2rem; }
+            .restaurant-grid { grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); }
+        }
+        @media (max-width:576px) {
+            .hero { height:250px; }
+            .hero-content h1 { font-size:1.8rem; }
+            .hero-content p { font-size:1rem; }
+            .restaurant-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <a href="#" class="logo">Zomato</a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Explore</a>
+                <a href="#">Favorites</a>
+                <a href="#">Orders</a>
+                <a href="#">Profile</a>
+            </div>
+        </nav>
+        <div class="search-bar">
+            <input type="text" placeholder="Search for restaurants or cuisines..." aria-label="Search restaurants or cuisines">
+            <button type="button" aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7a06e611-4349-4a14-b1b2-6b890cd519cb.png" alt="Delicious food assortment">
+        <div class="hero-content">
+            <h1>Discover the best food near you</h1>
+            <p>Order from your favorite restaurants or explore new cuisines with our curated collections.</p>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <div class="filters" role="toolbar" aria-label="Cuisine filters">
+        <button class="filter-btn active" type="button">All</button>
+        <button class="filter-btn" type="button">Indian</button>
+        <button class="filter-btn" type="button">Italian</button>
+        <button class="filter-btn" type="button">Chinese</button>
+        <button class="filter-btn" type="button">Mexican</button>
+        <button class="filter-btn" type="button">Japanese</button>
+        <button class="filter-btn" type="button">American</button>
+        <button class="filter-btn" type="button">Desserts</button>
+        <button class="filter-btn" type="button">Healthy</button>
+    </div>
+
+    <!-- Restaurants -->
+    <section class="restaurants">
+        <h2 class="section-title">Popular Restaurants Near You</h2>
+        <div class="restaurant-grid">
+            <!-- Card 1 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/76e5f7ba-561c-4b89-afb4-2ea3b9170e59.png" alt="Italian interior">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.5</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Bella Italia</h3>
+                    <p class="cuisine">Italian, Pasta, Pizza</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>2 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>300 for two</span></p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/06345090-bc8c-4b42-ae3d-a83c5f997310.png" alt="Sushi platter">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.7</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Sakura</h3>
+                    <p class="cuisine">Japanese, Sushi, Ramen</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>1.5 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>500 for two</span></p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8a2dab14-26bc-4022-b7e8-182a46f156af.png" alt="Butter chicken">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.3</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Spice Route</h3>
+                    <p class="cuisine">Indian, North Indian, Mughlai</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>3 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>350 for two</span></p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7a3c8f33-0db1-40ae-a8c5-9d156caa8694.png" alt="Burgers and fries">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.2</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Burger Junction</h3>
+                    <p class="cuisine">American, Burgers, Fast Food</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>1.2 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>400 for two</span></p>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1fc0f3b7-ca5b-4a42-8f1f-314f349c91af.png" alt="Mexican tacos">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.4</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Taco Fiesta</h3>
+                    <p class="cuisine">Mexican, Tex-Mex, Burritos</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>2.5 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>450 for two</span></p>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8a6ca22c-b816-4287-9753-05ce3a6a435d.png" alt="Chinese dim sum">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.6</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Dragon Palace</h3>
+                    <p class="cuisine">Chinese, Dim Sum, Noodles</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>1.8 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>380 for two</span></p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Newly Opened</h2>
+        <div class="restaurant-grid">
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a66900d2-9b4a-4575-8a05-cda24f7cc079.png" alt="Ice cream parlour">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.8</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Sweet Scoops</h3>
+                    <p class="cuisine">Desserts, Ice Cream, Waffles</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>0.8 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>200 for two</span></p>
+                </div>
+            </div>
+
+            <div class="restaurant-card">
+                <div class="card-image">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7049af50-0a65-4fd1-9974-7a8435fa4619.png" alt="Buddha bowl">
+                    <div class="rating"><i class="fas fa-star"></i><span>4.5</span></div>
+                </div>
+                <div class="card-content">
+                    <h3>Green Bites</h3>
+                    <p class="cuisine">Healthy, Vegan, Salads</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i><span>1.5 km away</span></p>
+                    <p class="price"><i class="fas fa-rupee-sign"></i><span>350 for two</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Team</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <ul>
+                    <li><a href="#">Help & Support</a></li>
+                    <li><a href="#">Partner With Us</a></li>
+                    <li><a href="#">Ride With Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2023 Zomato Clone. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM references
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const restaurants = document.querySelectorAll('.restaurant-card');
+        const searchInput = document.querySelector('.search-bar input');
+        const searchBtn = document.querySelector('.search-bar button');
+
+        // Helper to show all cards
+        function showAll() {
+            restaurants.forEach(card => card.style.display = '');
+        }
+
+        // Filter functionality by cuisine (button text)
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const type = btn.textContent.trim().toLowerCase();
+                if (type === 'all') {
+                    showAll();
+                    return;
+                }
+
+                restaurants.forEach(card => {
+                    const cuisine = card.querySelector('.cuisine').textContent.toLowerCase();
+                    if (cuisine.includes(type)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search functionality (matches name OR cuisine)
+        function doSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (query === '') {
+                // If empty, reapply active filter or show all
+                const activeBtn = document.querySelector('.filter-btn.active');
+                if (activeBtn && activeBtn.textContent.trim().toLowerCase() !== 'all') {
+                    activeBtn.click();
+                } else {
+                    showAll();
+                }
+                return;
+            }
+
+            restaurants.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const cuisine = card.querySelector('.cuisine').textContent.toLowerCase();
+                if (name.includes(query) || cuisine.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchBtn.addEventListener('click', doSearch);
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') doSearch();
+        });
+
+        // Card click handler (ignore clicks on buttons/links)
+        restaurants.forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('a')) return;
+                const restaurantName = card.querySelector('h3').textContent;
+                alert(`Opening restaurant page for ${restaurantName}`);
+            });
+        });
+    </script>
+</body>
+</html>
